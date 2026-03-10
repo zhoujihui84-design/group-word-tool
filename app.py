@@ -9,8 +9,8 @@ from googleapiclient.http import MediaIoBaseUpload
 FOLDER_ID = "zhoujihui@long-loop-489815-v6.iam.gserviceaccount.com"
 
 # --- 2. 网页基础设置 ---
-st.set_page_config(page_title="小组成员稿件同步", layout="centered")
-st.title("📁 稿件上传与框架识别")
+st.set_page_config(page_title="cathy-word", layout="centered")
+st.title("📁 upload and analyze")
 st.info("提示：上传后点击『提交并保存』，文件会自动同步到我的 Google Drive。")
 
 # --- 3. 连接 Google Drive 服务 ---
