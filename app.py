@@ -5,7 +5,7 @@ import io
 # 页面基础设置
 st.set_page_config(page_title="稿件收集大纲识别器", layout="centered")
 
-st.title("📄 组员稿件大纲识别器")
+st.title("📄 三国演义 group-word")
 st.info("功能：上传 .docx 文件，自动识别文档里的标题框架（需使用Word标题样式）。")
 
 # 文件上传组件
