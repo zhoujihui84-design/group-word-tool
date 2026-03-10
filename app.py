@@ -29,7 +29,7 @@ from googleapiclient.http import MediaIoBaseUpload
 
 # --- 配置区 ---
 # 填入你 Google Drive 文件夹的 ID（在浏览器地址栏末尾那一串字符）
-FOLDER_ID = "你的文件夹ID"
+FOLDER_ID = "zhoujihui@long-loop-489815-v6.iam.gserviceaccount.com"
 
 # 网页设置
 st.set_page_config(page_title="稿件同步工具", layout="centered")
