@@ -7,7 +7,7 @@ from googleapiclient.discovery import build
 from googleapiclient.http import MediaIoBaseUpload
 
 # --- 1. 配置区（已根据你的截图更新 ID） ---
-FOLDER_ID = "1qkgnZ5LNbyso8MFH76xu6oAIj1ljvNn-" 
+FOLDER_ID = "1qkgnZ5LNbyso8MFH76xu6oAIj1ljvNn" 
 
 # --- 2. 网页基础设置 ---
 st.set_page_config(page_title="Cathy-coword", layout="centered")
