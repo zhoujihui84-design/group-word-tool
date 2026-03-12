@@ -1,38 +1,28 @@
 import streamlit as st
 from docx import Document
 import io
-import json
-from google.oauth2 import service_account
-from googleapiclient.discovery import build
-from googleapiclient.http import MediaIoBaseUpload
+import requests
+import base64
 
-# --- 1. 配置区（已根据你的截图更新 ID） ---
-FOLDER_ID = "1qkgnZ5LNbyso8MFH76xu6oAIj1ljvNn-" 
+# --- 1. 配置区 ---
+# 这里的名字要和你在 Streamlit Secrets 里的名字一模一样
+TOKEN = st.secrets["GITHUB_TOKEN"]
+REPO = st.secrets["GITHUB_REPO"]
 
-# --- 2. 网页基础设置 ---
-st.set_page_config(page_title="Cathy-coword", layout="centered")
+st.set_page_config(page_title="Cathy-word", layout="centered")
 st.title("📁 upload and analyze")
-st.markdown("### 提示：上传后**务必点击**下方的蓝色提交按钮")
+st.markdown("### 提示：上传后**务必点击**下方的同步按钮")
 
-# --- 3. 连接 Google Drive 服务 ---
-def get_drive_service():
-    info = st.secrets["gcp_service_account"]
-    if isinstance(info, str):
-        info = json.loads(info)
-    creds = service_account.Credentials.from_service_account_info(info)
-    return build('drive', 'v3', credentials=creds)
-
-# --- 4. 网页主体逻辑 ---
+# --- 2. 网页主体逻辑 ---
 uploaded_file = st.file_uploader("点击或拖拽上传 Word 文档", type="docx")
 
 if uploaded_file is not None:
-    # 读取文件
     file_bytes = uploaded_file.read()
     doc = Document(io.BytesIO(file_bytes))
     
     st.success(f"✅ 已加载文件：{uploaded_file.name}")
     
-    # 功能 A：识别大纲（这样组员能看到自己传对了没）
+    # 识别大纲
     st.subheader("📌 识别到的大纲框架：")
     has_heading = False
     for p in doc.paragraphs:
@@ -43,29 +33,38 @@ if uploaded_file is not None:
             has_heading = True
     
     if not has_heading:
-        st.warning("⚠️ 没检测到标题样式，请确认你使用了 Word 的『标题 1/2/3』。")
+        st.warning("⚠️ 没检测到标题样式，请提醒组员使用 Word 的『标题』样式。")
 
-    # --- 关键：提交按钮 ---
-    # 只要上传了文件，这个按钮就必须显示出来
-    if st.button("🚀 确认提交并保存到我的云端硬盘"):
+    # --- 关键：同步按钮 ---
+    if st.button("🚀 确认提交并同步到 GitHub"):
         try:
             with st.spinner("正在全力同步中..."):
-                service = get_drive_service()
-                file_metadata = {
-                    'name': uploaded_file.name,
-                    'parents': [FOLDER_ID]
+                # 将文件转为 Base64 格式发送给 GitHub
+                content = base64.b64encode(file_bytes).decode("utf-8")
+                path = f"uploads/{uploaded_file.name}"
+                url = f"https://api.github.com/repos/{REPO}/contents/{path}"
+                
+                headers = {
+                    "Authorization": f"token {TOKEN}",
+                    "Accept": "application/vnd.github.v3+json"
                 }
-                media = MediaIoBaseUpload(
-                    io.BytesIO(file_bytes), 
-                    mimetype='application/vnd.openxmlformats-officedocument.wordprocessingml.document'
-                )
-                service.files().create(body=file_metadata, media_body=media, fields='id').execute()
-                st.balloons()
-                st.success("🎉 太棒了！文件已经安全存入我的 Google Drive 文件夹。")
+                data = {
+                    "message": f"Upload {uploaded_file.name} via Streamlit",
+                    "content": content
+                }
+                
+                # 发送请求
+                res = requests.put(url, headers=headers, json=data)
+                
+                if res.status_code in [200, 201]:
+                    st.balloons()
+                    st.success("🎉 太棒了！文件已经成功存入你的 GitHub 仓库。")
+                else:
+                    st.error(f"同步失败，GitHub 报错：{res.json().get('message')}")
         except Exception as e:
-            st.error(f"同步失败！请联系组长检查 Secrets 配置。错误信息：{e}")
+            st.error(f"发生错误：{e}")
 
-    # 预览正文
+    # 预览
     with st.expander("点此预览正文"):
         for p in doc.paragraphs:
             if p.text.strip():
