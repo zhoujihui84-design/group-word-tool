@@ -8,7 +8,7 @@ from googleapiclient.http import MediaIoBaseUpload
 
 # --- 1. 配置区 ---
 # 确保引号里是你那个 Google Drive 文件夹的 ID
-FOLDER_ID = "16W8C7Yv2SreB0R787M7Fm_Qe-f6-M8W1" 
+FOLDER_ID = "1qkgnZ5LNbyso8MFH76xu6oAIj1ljvNn-" 
 
 # --- 2. 网页基础设置 ---
 st.set_page_config(page_title="cathy-words-co", layout="centered")
